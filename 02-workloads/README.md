@@ -249,10 +249,10 @@ kubectl delete pod nginx-test
 
 ## ✅ Checklist
 
-- [ ] I can explain what Kubernetes solves compared to plain Docker
-- [ ] I can name the control plane and node components and their roles
-- [ ] I can write a basic Pod manifest from memory
-- [ ] I can start Minikube and run `kubectl get nodes`
-- [ ] I can debug a Pod with `describe` and `logs`
+- [ok] I can explain what Kubernetes solves compared to plain Docker
+- [ok] I can name the control plane and node components and their roles
+- [ok] I can write a basic Pod manifest from memory
+- [ok] I can start Minikube and run `kubectl get nodes`
+- [ok] I can debug a Pod with `describe` and `logs`
 
 **Next:** [02 - Workloads](../02-workloads/README.md) (Deployments, ReplicaSets, rolling updates)
