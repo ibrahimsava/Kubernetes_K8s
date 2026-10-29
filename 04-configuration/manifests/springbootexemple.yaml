@@ -1,0 +1,43 @@
+# Exemple de configuration d'une application Spring Boot (pour référence).
+# L'image "ton-api:1.0" est fictive : ce fichier n'est pas à appliquer tel quel.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: api-config
+data:
+  SPRING_PROFILES_ACTIVE: "prod"
+  SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres:5432/mabase"
+  SPRING_DATASOURCE_USERNAME: "app"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: api-secret
+type: Opaque
+stringData:
+  SPRING_DATASOURCE_PASSWORD: "a-remplacer"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: ton-api:1.0
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: api-config
+            - secretRef:
+                name: api-secret

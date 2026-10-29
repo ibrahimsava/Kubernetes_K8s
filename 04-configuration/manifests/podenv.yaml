@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: env-demo
+spec:
+  restartPolicy: Never
+  containers:
+    - name: busybox
+      image: busybox:1.36
+      command: ["sh", "-c", "env | grep -E 'APP_|LOG_|DB_' | sort; sleep 3600"]
+      # Toutes les clés du ConfigMap deviennent des variables
+      envFrom:
+        - configMapRef:
+            name: app-config
+      # Une seule clé du Secret, avec un nom choisi
+      env:
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_USER
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: db-secret
+              key: DB_PASSWORD

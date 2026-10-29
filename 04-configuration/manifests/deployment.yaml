@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-config
+  labels:
+    app: web-config
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-config
+  template:
+    metadata:
+      labels:
+        app: web-config
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+          # Variables d'environnement
+          envFrom:
+            - configMapRef:
+                name: app-config
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: db-secret
+                  key: DB_PASSWORD
+          # Fichiers montés
+          volumeMounts:
+            - name: page
+              mountPath: /usr/share/nginx/html
+            - name: secrets
+              mountPath: /etc/secrets
+              readOnly: true
+      volumes:
+        - name: page
+          configMap:
+            name: page-config
+        - name: secrets
+          secret:
+            secretName: db-secret
