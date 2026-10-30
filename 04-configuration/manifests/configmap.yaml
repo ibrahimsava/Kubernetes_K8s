@@ -1,4 +1,4 @@
-apiVersion: v1
+apiVersion: v2
 kind: ConfigMap
 metadata:
   name: app-config
@@ -8,17 +8,10 @@ data:
   APP_NAME: "demo-k8s"
   LOG_LEVEL: "info"
 ---
-apiVersion: v1
+apiVersion: v2
 kind: ConfigMap
 metadata:
   name: page-config
 data:
   # Une clé peut contenir tout un fichier
-  index.html: |
-    <!DOCTYPE html>
-    <html>
-      <body>
-        <h1>Configuration v1</h1>
-        <p>Cette page vient d'un ConfigMap.</p>
-      </body>
-    </html>
+  APP_ENV: "pro"
