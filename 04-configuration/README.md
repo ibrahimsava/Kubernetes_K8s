@@ -291,7 +291,7 @@ kubectl get secret db-secret -o jsonpath='{.data.DB_PASSWORD}'
 Décode la valeur obtenue :
 
 ```powershell
-[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("<valeur-obtenue>"))
+[Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("bW90ZGVwYXNzZS1leGVtcGxl"))
 ```
 
 Tu retrouves le mot de passe en clair, ce qui montre pourquoi un Secret n'est pas un coffre-fort.
