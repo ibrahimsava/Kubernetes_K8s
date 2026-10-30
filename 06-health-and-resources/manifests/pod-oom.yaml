@@ -1,0 +1,23 @@
+# Le conteneur écrit 200 Mo dans un volume en mémoire alors que sa limite est de 50 Mi :
+# il est tué par le système (OOMKilled).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: oom-demo
+spec:
+  containers:
+    - name: memoire
+      image: busybox:1.36
+      command: ["sh", "-c", "exec dd if=/dev/zero of=/mem/remplissage bs=1M count=200"]
+      resources:
+        requests:
+          memory: 50Mi
+        limits:
+          memory: 50Mi
+      volumeMounts:
+        - name: mem
+          mountPath: /mem
+  volumes:
+    - name: mem
+      emptyDir:
+        medium: Memory

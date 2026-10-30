@@ -1,0 +1,52 @@
+# Exemple de référence pour une API Spring Boot (image fictive : ne pas appliquer tel quel).
+# Prérequis côté application (application.properties) :
+#   management.endpoint.health.probes.enabled=true
+#   management.endpoints.web.exposure.include=health
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      containers:
+        - name: api
+          image: ton-api:1.0
+          ports:
+            - containerPort: 8080
+          env:
+            # La JVM s'adapte à la limite mémoire du conteneur
+            - name: JAVA_TOOL_OPTIONS
+              value: "-XX:MaxRAMPercentage=75"
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+          # Laisse jusqu'à 150 s à la JVM pour démarrer (30 x 5 s)
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 30
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3

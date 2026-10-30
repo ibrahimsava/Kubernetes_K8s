@@ -1,0 +1,13 @@
+# Demande plus de ressources que le nœud n'en possède : le Pod restera Pending.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: trop-gros
+spec:
+  containers:
+    - name: nginx
+      image: nginx:1.27
+      resources:
+        requests:
+          cpu: "50"
+          memory: 100Gi

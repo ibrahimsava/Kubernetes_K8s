@@ -1,0 +1,41 @@
+# Deployment prévu pour l'autoscaling. La requête CPU est très basse (10m) pour
+# que quelques requêtes suffisent à dépasser le seuil de 50 %.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-hpa
+  labels:
+    app: web-hpa
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-hpa
+  template:
+    metadata:
+      labels:
+        app: web-hpa
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 100m
+              memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-hpa
+spec:
+  selector:
+    app: web-hpa
+  ports:
+    - port: 80
+      targetPort: 80

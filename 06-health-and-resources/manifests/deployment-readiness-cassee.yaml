@@ -1,0 +1,49 @@
+# Même Deployment que deployment-probes.yaml, avec une readiness probe volontairement cassée
+# (le chemin /nexiste-pas renvoie 404). À appliquer pour observer le comportement.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-sante
+  labels:
+    app: web-sante
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web-sante
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: web-sante
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          readinessProbe:
+            httpGet:
+              path: /nexiste-pas
+              port: 80
+            initialDelaySeconds: 3
+            periodSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            failureThreshold: 3
