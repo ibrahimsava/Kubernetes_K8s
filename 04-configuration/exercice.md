@@ -43,7 +43,7 @@ Fais ces exercices sans regarder le cours. Note tes observations dans `../notes/
 2. Affiche-le : `kubectl get secret mon-secret -o yaml`.
 3. Décode la valeur avec PowerShell :
    ```powershell
-   [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("<valeur>"))
+   [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String("YWJjMTIzLWZpY3RpZg"))
    ```
 4. Compare avec `kubectl describe secret mon-secret`.
 
@@ -76,7 +76,7 @@ Fais ces exercices sans regarder le cours. Note tes observations dans `../notes/
 3. Affiche le contenu de `/etc/secrets/DB_PASSWORD`.
 4. Affiche la page avec `kubectl port-forward deployment/web-config 8080:80`.
 
-**Questions**
+**Questions** hjrpotjtgtgj
 - Combien de fichiers vois-tu dans `/etc/secrets` ? Pourquoi ce nombre ?
 - Le montage du ConfigMap sur `/usr/share/nginx/html` a-t-il remplacé la page par défaut de Nginx ? Pourquoi ?
 
