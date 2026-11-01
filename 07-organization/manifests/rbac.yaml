@@ -1,0 +1,51 @@
+# --- Cas 1 : Role sur mesure, limité au namespace dev ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: lecteur
+  namespace: dev
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: lecteur-pods
+  namespace: dev
+rules:
+  - apiGroups: [""]                       # "" = groupe de base (core)
+    resources: ["pods", "pods/log", "services"]
+    verbs: ["get", "list", "watch"]       # lecture seule
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: lecteur-binding
+  namespace: dev
+subjects:
+  - kind: ServiceAccount
+    name: lecteur
+    namespace: dev
+roleRef:
+  kind: Role
+  name: lecteur-pods
+  apiGroup: rbac.authorization.k8s.io
+---
+# --- Cas 2 : ClusterRole prédéfini "view", mais appliqué seulement au namespace test ---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: observateur
+  namespace: test
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: observateur-view
+  namespace: test
+subjects:
+  - kind: ServiceAccount
+    name: observateur
+    namespace: test
+roleRef:
+  kind: ClusterRole
+  name: view
+  apiGroup: rbac.authorization.k8s.io

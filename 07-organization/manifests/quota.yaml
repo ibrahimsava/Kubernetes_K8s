@@ -1,0 +1,13 @@
+# Plafond global pour le namespace dev
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: quota-dev
+  namespace: dev
+spec:
+  hard:
+    pods: "4"
+    requests.cpu: "500m"
+    requests.memory: 512Mi
+    limits.cpu: "1"
+    limits.memory: 1Gi

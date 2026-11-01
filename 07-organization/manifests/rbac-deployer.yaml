@@ -1,0 +1,38 @@
+# Référence pour le module 09 (CI/CD) : un compte de service dédié à un pipeline,
+# qui peut mettre à jour les applications du namespace dev, et rien d'autre.
+# Principe du moindre privilège : pas d'accès aux Secrets, pas d'accès aux autres namespaces.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ci-deployer
+  namespace: dev
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: deployer
+  namespace: dev
+rules:
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["services", "configmaps"]
+    verbs: ["get", "list", "watch", "create", "update", "patch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ci-deployer-binding
+  namespace: dev
+subjects:
+  - kind: ServiceAccount
+    name: ci-deployer
+    namespace: dev
+roleRef:
+  kind: Role
+  name: deployer
+  apiGroup: rbac.authorization.k8s.io

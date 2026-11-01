@@ -1,0 +1,44 @@
+# Pas de namespace dans ce fichier : on choisit où l'appliquer avec -n
+#   kubectl apply -f manifests/app.yaml -n dev
+#   kubectl apply -f manifests/app.yaml -n test
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+  labels:
+    app: web
+    app.kubernetes.io/name: web
+    app.kubernetes.io/part-of: boutique
+  annotations:
+    description: "Frontend de la boutique (exemple de module 07)"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: web
+  template:
+    metadata:
+      labels:
+        app: web
+        app.kubernetes.io/name: web
+        app.kubernetes.io/part-of: boutique
+        tier: frontend
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+  labels:
+    app: web
+spec:
+  selector:
+    app: web
+  ports:
+    - port: 80
+      targetPort: 80
