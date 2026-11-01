@@ -1,0 +1,62 @@
+name: Validate Kubernetes manifests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Si un nouveau push arrive sur la même branche, on annule l'exécution précédente
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  KUBECONFORM_VERSION: v0.6.7
+  K8S_VERSION: "1.31.0"
+
+jobs:
+  validate:
+    name: validate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install kubeconform
+        run: |
+          curl -sSL -o kubeconform.tgz \
+            "https://github.com/yannh/kubeconform/releases/download/${KUBECONFORM_VERSION}/kubeconform-linux-amd64.tar.gz"
+          tar xzf kubeconform.tgz kubeconform
+          sudo mv kubeconform /usr/local/bin/
+          kubeconform -v
+
+      # Tous les manifests "bruts" (hors Kustomize et Helm, validés plus bas après rendu)
+      - name: Validate raw manifests
+        run: |
+          find . -name '*.yaml' \
+            ! -path './08-helm-kustomize/*' \
+            ! -path './.github/*' -print0 \
+            | xargs -0 kubeconform -strict -summary -skip Kustomization -kubernetes-version "$K8S_VERSION"
+
+      - name: Validate Kustomize overlays
+        run: |
+          for overlay in dev test; do
+            echo "== overlay $overlay =="
+            kubectl kustomize "08-helm-kustomize/kustomize/overlays/$overlay" \
+              | kubeconform -strict -summary -kubernetes-version "$K8S_VERSION" -
+          done
+
+      - name: Lint and validate Helm chart
+        run: |
+          chart=08-helm-kustomize/helm/boutique-web
+          helm lint "$chart"
+          for values in values-dev.yaml values-test.yaml; do
+            echo "== $values =="
+            helm template ci "$chart" -f "$chart/$values" --set ingress.enabled=true \
+              | kubeconform -strict -summary -kubernetes-version "$K8S_VERSION" -
+          done

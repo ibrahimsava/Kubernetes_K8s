@@ -1,0 +1,62 @@
+name: Deploy test on kind
+
+# Crée un vrai cluster Kubernetes éphémère DANS le runner GitHub,
+# y déploie l'application avec Helm puis Kustomize, et vérifie qu'elle répond.
+on:
+  pull_request:
+    paths:
+      - '08-helm-kustomize/**'
+      - '.github/workflows/kind-deploy.yml'
+  push:
+    branches: [main]
+    paths:
+      - '08-helm-kustomize/**'
+      - '.github/workflows/kind-deploy.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: kind-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy-test:
+    name: deploy-test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create kind cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: ci
+
+      - name: Deploy with Helm
+        run: |
+          helm upgrade --install web-ci 08-helm-kustomize/helm/boutique-web \
+            --namespace ci-helm --create-namespace \
+            -f 08-helm-kustomize/helm/boutique-web/values-dev.yaml \
+            --wait --timeout 3m
+
+      - name: Smoke test (Helm release)
+        run: |
+          kubectl port-forward -n ci-helm svc/web-ci-boutique-web 8080:80 &
+          sleep 5
+          curl --fail --silent --show-error http://localhost:8080 | grep -i "nginx"
+
+      - name: Deploy with Kustomize
+        run: |
+          kubectl apply -k 08-helm-kustomize/kustomize/overlays/dev
+          kubectl rollout status deployment/web -n dev --timeout=180s
+          kubectl get pods -n dev
+
+      - name: Debug on failure
+        if: failure()
+        run: |
+          kubectl get all -A
+          kubectl describe pods -A | tail -n 200
+          kubectl get events -A --sort-by=.lastTimestamp | tail -n 50
