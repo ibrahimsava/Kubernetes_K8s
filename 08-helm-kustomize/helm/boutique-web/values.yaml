@@ -1,0 +1,36 @@
+# Valeurs par défaut du chart. On les surcharge avec -f values-dev.yaml ou --set.
+
+replicaCount: 2
+
+image:
+  repository: nginx
+  tag: ""                 # vide = utilise appVersion du Chart.yaml
+  pullPolicy: IfNotPresent
+
+service:
+  type: ClusterIP
+  port: 80
+
+# Devient un ConfigMap, injecté en variables d'environnement
+config:
+  APP_ENV: dev
+  LOG_LEVEL: info
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 100m
+    memory: 128Mi
+
+probes:
+  enabled: true
+
+ingress:
+  enabled: false
+  className: nginx
+  host: web.local
+
+nameOverride: ""
+fullnameOverride: ""

@@ -1,0 +1,6 @@
+apiVersion: v2
+name: boutique-web
+description: Frontend Nginx de la boutique, chart d'apprentissage (module 08)
+type: application
+version: 0.1.0          # version du chart (change quand le chart change)
+appVersion: "1.27"      # version de l'application (ici : tag de l'image Nginx)

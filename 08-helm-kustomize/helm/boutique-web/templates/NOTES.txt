@@ -1,0 +1,9 @@
+Le chart {{ .Chart.Name }} a ete installe sous le nom : {{ .Release.Name }}
+Namespace : {{ .Release.Namespace }}
+
+Pour tester l'application :
+  kubectl port-forward svc/{{ include "boutique-web.fullname" . }} 8080:{{ .Values.service.port }} -n {{ .Release.Namespace }}
+Puis ouvre http://localhost:8080
+
+Pour voir les valeurs utilisees :
+  helm get values {{ .Release.Name }} -n {{ .Release.Namespace }}

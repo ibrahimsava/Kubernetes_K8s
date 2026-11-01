@@ -1,0 +1,24 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev                 # place toutes les ressources dans le namespace dev
+
+resources:
+  - ../../base                 # on part de la base commune
+  - namespace.yaml
+
+replicas:
+  - name: web                  # nom du Deployment à modifier
+    count: 1
+
+labels:
+  - pairs:
+      env: dev
+    includeSelectors: false    # ne touche pas aux selectors (ils sont immuables)
+    includeTemplates: true     # mais ajoute le label aux Pods
+
+configMapGenerator:
+  - name: app-config           # un hash est ajouté au nom : un changement redéploie les Pods
+    literals:
+      - APP_ENV=dev
+      - LOG_LEVEL=debug
