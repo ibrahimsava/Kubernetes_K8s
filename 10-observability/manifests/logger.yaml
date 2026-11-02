@@ -1,0 +1,36 @@
+# Un Pod à deux conteneurs qui écrivent des logs : pour s'entraîner à kubectl logs
+# (-c pour choisir le conteneur, --tail, --since, -f, grep...).
+apiVersion: v1
+kind: Pod
+metadata:
+  name: logger
+  labels:
+    app: logger
+spec:
+  containers:
+    - name: api
+      image: busybox:1.36
+      command: ["sh", "-c"]
+      args:
+        - |
+          i=0
+          while true; do
+            i=`expr $i + 1`
+            if [ "`expr $i % 10`" = "0" ]; then
+              echo "`date '+%Y-%m-%dT%H:%M:%S'` ERROR requete=$i paiement refuse"
+            elif [ "`expr $i % 5`" = "0" ]; then
+              echo "`date '+%Y-%m-%dT%H:%M:%S'` WARN requete=$i temps de reponse eleve"
+            else
+              echo "`date '+%Y-%m-%dT%H:%M:%S'` INFO requete=$i ok"
+            fi
+            sleep 2
+          done
+    - name: worker
+      image: busybox:1.36
+      command: ["sh", "-c"]
+      args:
+        - |
+          while true; do
+            echo "`date '+%Y-%m-%dT%H:%M:%S'` INFO worker traitement de la file"
+            sleep 7
+          done

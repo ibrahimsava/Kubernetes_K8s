@@ -1,0 +1,88 @@
+# Nginx + un "exporter" Prometheus en sidecar (conteneur d'appoint dans le même Pod).
+# L'exporter lit les statistiques de Nginx (/nginx_status) et les expose sur :9113/metrics
+# au format Prometheus.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: web-metrics-nginx-conf
+data:
+  default.conf: |
+    server {
+      listen 80;
+      location / {
+        root /usr/share/nginx/html;
+        index index.html;
+      }
+      # Statistiques internes de Nginx, accessibles uniquement depuis le Pod lui-même
+      location = /nginx_status {
+        stub_status;
+        allow 127.0.0.1;
+        deny all;
+      }
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-metrics
+  labels:
+    app: web-metrics
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-metrics
+  template:
+    metadata:
+      labels:
+        app: web-metrics
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - name: http
+              containerPort: 80
+          volumeMounts:
+            - name: conf
+              mountPath: /etc/nginx/conf.d
+          resources:
+            requests:
+              cpu: 20m
+              memory: 32Mi
+            limits:
+              memory: 128Mi
+        - name: exporter
+          image: nginx/nginx-prometheus-exporter:1.3.0
+          args:
+            - --nginx.scrape-uri=http://127.0.0.1:80/nginx_status
+          ports:
+            - name: metrics
+              containerPort: 9113
+          resources:
+            requests:
+              cpu: 10m
+              memory: 16Mi
+            limits:
+              memory: 64Mi
+      volumes:
+        - name: conf
+          configMap:
+            name: web-metrics-nginx-conf
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web-metrics
+  labels:
+    app: web-metrics
+spec:
+  selector:
+    app: web-metrics
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+    - name: metrics
+      port: 9113
+      targetPort: metrics

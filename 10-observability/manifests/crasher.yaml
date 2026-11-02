@@ -1,0 +1,18 @@
+# Écrit quelques logs puis plante : pour comprendre kubectl logs --previous
+apiVersion: v1
+kind: Pod
+metadata:
+  name: crasher
+  labels:
+    app: crasher
+spec:
+  containers:
+    - name: app
+      image: busybox:1.36
+      command: ["sh", "-c"]
+      args:
+        - |
+          echo "demarrage de l'application"
+          echo "connexion a la base..."
+          echo "ERREUR: connexion refusee (base-de-donnees:5432)"
+          exit 1
