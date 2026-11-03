@@ -21,4 +21,4 @@ configMapGenerator:
   - name: app-config           # un hash est ajouté au nom : un changement redéploie les Pods
     literals:
       - APP_ENV=dev
-      - LOG_LEVEL=debug
+      - LOG_LEVEL=warn
