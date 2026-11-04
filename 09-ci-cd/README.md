@@ -332,7 +332,7 @@ Dans le `README.md` principal, ajoute :
 ![Validate](https://github.com/ibrahimsava/k8s-learning/actions/workflows/validate-k8s.yml/badge.svg)
 ```
 
-Le badge affiche l'état du pipeline directement sur la page d'accueil du repo, ce qui plaît aux recruteurs.
+Le badge affiche l'état du pipeline directement sur la page d'accueil du repo. ce qui est recommander
 
 ### Étape 6 : Protéger la branche `main`
 
