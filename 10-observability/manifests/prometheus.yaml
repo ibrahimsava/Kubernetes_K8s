@@ -57,7 +57,16 @@ data:
               severity: warning
             annotations:
               summary: "Plus de 20 requetes par seconde sur {{ $labels.instance }}"
+          - alert: NginxConnexionsElevees
+            expr: nginx_connections_active > 10
+            for: 30s
+            labels:
+              severity: warning
+            annotations:
+              summary: "Nombre élevé de connexions actives sur Nginx"
+              description: "Le composant Nginx enregistre actuellement {{ $value }} connexions actives, ce qui dépasse le seuil de 10."
 ---
+
 apiVersion: apps/v1
 kind: Deployment
 metadata:

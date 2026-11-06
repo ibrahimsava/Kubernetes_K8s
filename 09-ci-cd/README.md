@@ -394,3 +394,12 @@ Ne le fais **que** quand ton projet Spring Boot existe, et seulement avec ta con
 - [ ] Je sais citer quatre bonnes pratiques de sécurité d'un pipeline
 
 **Suite :** [10 - Observabilité](../10-observability/README.md) (logs, métriques, Prometheus et Grafana)
+
+
+
+mon workflos normal apres ces ajout de verifications au niveau github git checkout -b ma-branche
+# ... modifications ...
+git add .
+git commit -m "message"
+git push -u origin ma-branche
+# puis PR sur GitHub, merge quand validate est vert
